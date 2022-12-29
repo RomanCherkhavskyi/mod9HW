@@ -1,32 +1,47 @@
 package myhashmap;
 
-public class MyHashMap<k,v> implements MyMapInterface {
-    // Начальный размер емкости --- исходный код 1 << 4
+
+/*
+
+Завдання 5 - HashMap
+Написати свій клас MyHashMap як аналог класу HashMap.
+
+Потрібно робити за допомогою однозв'язної Node.
+
+Не може зберігати дві ноди з однаковими ключами.
+
+Методи
+
+put(Object key, Object value) додає пару ключ + значення
+remove(Object key) видаляє пару за ключем
+clear() очищає колекцію
+size() повертає розмір колекції
+get(Object key) повертає значення (Object value) за ключем
+* */
+public class MyHashMap<K,V> {
+    // Початкова ємність мапи
     private final int DEFAULT_INITIAL_CAPACITY = 16;
-    // Коэффициент загрузки
+    // коефіцієнт завантаження
     private final float DEFAULT_LOAD_FACTOR = 0.75f;
-    // В соответствии с определенным статическим внутренним классом, инициализируем связанный список, длина является длиной по умолчанию
+    // створення бакетів - 16 штук
     Node[] table = new Node[DEFAULT_INITIAL_CAPACITY];
-    // длина
+    // к-сть елементів в мапі
     private  int size = 0;
 
-    @Override
     public int size() {
         return size;
     }
 
-    @Override
     public boolean isEmpty() {
         return size == 0;
     }
 
-    @Override
     public Object put(Object key, Object value) {
-        // Рассчитать хеш-значение ключа
+        // Розрахунок хеш значення ключа
         int hashValue = hash(key);
-        // Рассчитать место, где он должен храниться
+        // Розрахунок місця збереження
         int i = indexFor(hashValue,table.length);
-        // Если в i есть данные и ключ тот же, перезаписать
+        // якщо на позиції i є дані і ключ такий же, перезаписуємо дані
         for(Node node = table[i];node != null; node = node.next){
             Object k;
             if(node.hash == hashValue && ((k = node.key)==key||key.equals(k))){
@@ -35,17 +50,16 @@ public class MyHashMap<k,v> implements MyMapInterface {
                 return  oldValue;
             }
         }
-        // Если в позиции i нет данных или есть данные в позиции i, но ключ - это новый ключ, добавьте узел
+        // якщо на позиції i дані відсутні або дані є але ключ не збігається добавляємо нову ноду
         addNode(key,value,hashValue,i);
         return null;
     }
 
 
-    @Override
     public Object get(Object key) {
-        // Вычисляем значение хеша на основе хеш-кода объекта
+        // Розрахунок хеш значення ключа
         int hashValue = hash(key);
-        // По значению хеша и длине связанного списка получаем индекс позиции вставки
+        // По значенню хеша і довжині table отримуємо індекс для вставки даних
         int i = indexFor(hashValue,table.length);
         for(Node node = table[i];node != null;node = node.next){
             if(node.key.equals(key) && hashValue == node.hash){
@@ -55,76 +69,96 @@ public class MyHashMap<k,v> implements MyMapInterface {
         return null;
     }
 
-    // Добавить элементы в Entry
-    // hashvalue --- значение хеша
-    // я --- индексная позиция
+    // Запис даних в мапу
+    // hashvalue - хеш-значення ключа
+    // і - позиція вставки даних
     public void addNode(Object key, Object value, int hashValue, int i){
-        // Если согласованная длина массива превышена, расширяем емкость
+        // перевірка чи довжина масиву table не перевищує ємність мапи
         if(++size >= table.length * DEFAULT_LOAD_FACTOR){
             Node[] newTable = new Node[table.length << 1];
-            // копировать массив
-            //System.arraycopy(table,0,newTable,0,table.length);
             transfer(table,newTable);
             table = newTable;
         }
-        // получить данные в i
+        // отримуємо дані в i
         Node eNode = table[i];
-        // Добавить узел, указать узел рядом с предыдущим узлом
+        // додаємо нову ноду, вказуємо її зв'язок з попередньою
         table[i] = new Node(hashValue,key,value,eNode);
     }
 
-    // Цитировать скопированный код JDK1.7
-    public void transfer (Node [] src, Node [] newTable) {// src ссылается на старый массив Entry
+    public void transfer (Node [] src, Node [] newTable) {
         int newCapacity = newTable.length;
-        for (int j = 0; j <src.length; j ++) {// пройти старый массив Entry
-            Node e = src [j]; // Получить каждый элемент старого массива Entry
+        for (int j = 0; j <src.length; j ++) {
+            Node e = src [j];                               // отримуємо кожен елемент
             if (e != null) {
-                src [j] = null; // Освободить ссылку на объект старого массива Entry (после цикла for старый массив Entry больше не ссылается ни на какие объекты)
+                src [j] = null;
                 do {
                     Node next = e.next;
-                    int i = indexFor (e.hash, newCapacity); //! ! Пересчитать положение каждого элемента в массиве
-                    e.next = newTable [i]; // Mark [1]
-                    newTable [i] = e; // Поместить элемент в массив
-                    e = next; // Доступ к элементам в следующей цепочке ввода
+                    int i = indexFor (e.hash, newCapacity);
+                    e.next = newTable [i];
+                    newTable [i] = e;
+                    e = next;
                 } while (e != null);
             }
         }
     }
 
 
-    // Получить позицию вставки (операция с модулем некорректна)
+    // розрахунок позиції вставки
     public int indexFor(int hashValue,int length){
         return hashValue % length;
     }
 
-    // Получить позицию вставки, получить значение хеш-кода в соответствии с хеш-кодом объекта Object
     public int hash(Object key){
         int h;
         return (key == null) ? 0 : (h = key.hashCode()) ^ (h >>> 16);
     }
 
-    static class Node implements MyMapInterface.Node {
-        // хэш-значение
+    static class Node<K,V>  {
         int hash;
-        Object key;
-        Object value;
-        // Указывать на следующий узел (односвязный список)
+        K key;
+        V value;
         Node next;
-        Node(int hash,Object key,Object value,Node next){
+        Node(int hash,K key,V value,Node next){
             this.hash = hash;
             this.key = key;
             this.value = value;
             this.next = next;
         }
 
-        @Override
-        public Object getKey() {
+        public K getKey() {
             return key;
         }
 
-        @Override
-        public Object getValue() {
+        public V getValue() {
             return value;
         }
     }
+
+
+
+    public void clear(){
+        for (int i = 0; i < table.length-1; i++) {
+            for(Node node = table[i];node != null; node = node.next){
+                Object k;
+                if(node.value != null ){
+                    node.value = null;
+                }
+            }
+        }
+        size = 0;
+    }
+
+    public void remove(Object key){
+        int hashValue = hash(key);
+        int i = indexFor(hashValue,table.length);
+        for(Node node = table[i];node != null; node = node.next){
+            Object k;
+            if(node.hash == hashValue && ((k = node.key)==key||key.equals(k))){
+                node.value = null;
+                size--;
+            }
+        }
+
+    }
 }
+

@@ -1,27 +1,11 @@
 package myhashmap;
 
-/*
 
-Завдання 5 - HashMap
-Написати свій клас MyHashMap як аналог класу HashMap.
 
-Потрібно робити за допомогою однозв'язної Node.
-
-Не може зберігати дві ноди з однаковими ключами.
-
-Методи
-
-put(Object key, Object value) додає пару ключ + значення
-remove(Object key) видаляє пару за ключем
-clear() очищає колекцію
-size() повертає розмір колекції
-get(Object key) повертає значення (Object value) за ключем
-* */
-
-public class MyHashMapTest<K,V> {
+public class MyHashMapTest {
 
     public static void main(String[] args) {
-        MyHashMap myHashMap = new MyHashMap();
+        MyHashMap<Integer,Integer> myHashMap = new MyHashMap<>();
         for (int i = 0; i < 20; i++) {
             myHashMap.put(i,"value: " + i);
         }
@@ -29,6 +13,23 @@ public class MyHashMapTest<K,V> {
             System.out.println(myHashMap.get(i));
         }
         System.out.println("myHashMap.size() = " + myHashMap.size());
+
+//        myHashMap.clear();
+        myHashMap.remove(4);
+        myHashMap.remove(5);
+        myHashMap.remove(3);
+        myHashMap.remove(12);
+        for (int i = 0; i < 20; i++) {
+            System.out.println(myHashMap.get(i));
+        }
+        System.out.println("myHashMap.size() після remove() = " + myHashMap.size());
+
+        myHashMap.clear();
+        for (int i = 0; i < 20; i++) {
+            System.out.println(myHashMap.get(i));
+        }
+        System.out.println("myHashMap.size() після clear() = " + myHashMap.size());
+
 
     }
 }

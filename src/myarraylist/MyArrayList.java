@@ -63,10 +63,7 @@ public class MyArrayList<E> {
             innerArray[i] = innerArray[i+1];
         }
         innerArray[counter] = null;
-//        if (innerArray.length > initSize && counter < innerArray.length/4){
-//            resize(innerArray.length/2);
-//            System.out.println("Array was cut");
-//        }
+
 
     }
 
